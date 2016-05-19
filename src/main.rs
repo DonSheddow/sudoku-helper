@@ -8,7 +8,23 @@ use std::io::BufReader;
 
 type Grid = [[Slot; 9]; 9];
 
-type RowIterator<'a> = ::std::slice::Iter<'a, [Slot; 9]>;
+struct RowIterator<'a> {
+    iter: std::slice::Iter<'a, [Slot; 9]>,
+}
+
+impl<'a> RowIterator<'a> {
+    fn new(grid: &'a Grid) -> RowIterator {
+        RowIterator { iter: grid.iter() }
+    }
+}
+
+impl<'a> Iterator for RowIterator<'a> {
+    type Item = Vec<&'a Slot>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next().map(|a| a.iter().collect::<Vec<_>>())
+    }
+}
 
 struct ColumnIterator<'a> {
     grid: &'a Grid,
@@ -79,7 +95,6 @@ impl<'a> Iterator for BlockIterator<'a> {
     }
 }
 
-
 #[derive(Copy, Clone)]
 enum Slot {
     Empty,
@@ -122,7 +137,7 @@ impl SudokuPuzzle {
     }
 
     fn rows(&self) -> RowIterator {
-        self.grid.iter()
+        RowIterator::new(&self.grid)
     }
 
     fn columns(&self) -> ColumnIterator {
@@ -140,7 +155,7 @@ impl SudokuPuzzle {
         let mut formatted_rows = vec![];
         for row in self.rows() {
             let mut str_row = "|".to_owned();
-            for &slot in row.iter() {
+            for &slot in row {
                 let s = match slot {
                     Slot::Empty => " |".to_owned(),
                     Slot::Filled(n) => format!("{}|", n),
