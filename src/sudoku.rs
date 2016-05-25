@@ -227,26 +227,4 @@ impl SudokuPuzzle {
         BlockIterator::new(&self.grid)
     }
 
-    pub fn print(&self) {
-        let row_separator = ["-"; 9];
-        let top_bot_sep = row_separator.join("-");
-        println!("{}", top_bot_sep);
-        let mut formatted_rows = vec![];
-        for row in self.rows() {
-            let mut str_row = "|".to_owned();
-            for &slot in row {
-                let s = match slot {
-                    Slot::Empty => " |".to_owned(),
-                    Slot::Filled(n) => format!("{}|", n),
-                };
-                str_row.push_str(&s);
-            }
-            str_row.push('\n');
-            formatted_rows.push(str_row);
-        }
-        let between_sep = format!("|{}\n", row_separator.join("+"));
-        print!("{}", formatted_rows.join(&between_sep));
-        println!("{}", top_bot_sep);
-    }
-
 }

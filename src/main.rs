@@ -59,8 +59,6 @@ fn main() {
         None => SudokuPuzzle::new(stdin.lock()).unwrap(),
     };
 
-    puzzle.print();
-    
     let mut columns = puzzle.columns();
     let first_column = columns.next().unwrap();
     for &slot in first_column {
