@@ -1,5 +1,4 @@
 extern crate ws;
-extern crate serde_json;
 
 use ws::{listen, Sender, Handler, Message, Handshake};
 
