@@ -7,6 +7,7 @@ use std::error;
 use std::convert;
 use std::fmt;
 use std::num::ParseIntError;
+use std::io;
 
 mod iterators;
 
@@ -24,6 +25,7 @@ pub type Grid = [[Slot; 9]; 9];
 pub enum SudokuParseError {
     Json(serde_json::error::Error),
     IntParsing(ParseIntError),
+    Io(io::Error),
     Syntax(&'static str),
 }
 
@@ -32,6 +34,7 @@ impl fmt::Display for SudokuParseError {
         match *self {
             SudokuParseError::Json(ref error) => fmt::Display::fmt(error, fmt),
             SudokuParseError::IntParsing(ref error) => fmt::Display::fmt(error, fmt),
+            SudokuParseError::Io(ref error) => fmt::Display::fmt(error, fmt),
             SudokuParseError::Syntax(ref s) => fmt::Display::fmt(s, fmt),
         }
     }
@@ -42,6 +45,7 @@ impl error::Error for SudokuParseError {
         match *self {
             SudokuParseError::Json(ref e) => error::Error::description(e),
             SudokuParseError::IntParsing(ref e) => error::Error::description(e),
+            SudokuParseError::Io(ref e) => error::Error::description(e),
             SudokuParseError::Syntax(s) => s,
         }
     }
@@ -59,6 +63,12 @@ impl From<ParseIntError> for SudokuParseError {
     }
 }
 
+impl From<io::Error> for SudokuParseError {
+    fn from(error: io::Error) -> SudokuParseError {
+        SudokuParseError::Io(error)
+    }
+}
+
 impl From<&'static str> for SudokuParseError {
     fn from(error: &'static str) -> SudokuParseError {
         SudokuParseError::Syntax(error)
@@ -71,7 +81,7 @@ pub struct SudokuPuzzle {
 
 impl SudokuPuzzle {
 
-    pub fn new<T>(mut file: T) -> Result<Self, Box<error::Error>>
+    pub fn from_file<T>(mut file: T) -> Result<Self, SudokuParseError>
         where T: BufRead {
 
         let mut puzzle = SudokuPuzzle {
@@ -83,7 +93,7 @@ impl SudokuPuzzle {
             try!(file.read_line(&mut buffer));
             let mut numbers = buffer.split(',');
             for slot in row.iter_mut() {
-                let str_num = try!(numbers.next().ok_or("not enough numbers")).trim();
+                let str_num = try!(numbers.next().ok_or("not enough numbers in row")).trim();
                 if str_num == "_" {
                     *slot = Slot::Empty;
                 }

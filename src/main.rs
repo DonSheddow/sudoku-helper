@@ -54,8 +54,8 @@ fn main() {
 
     let stdin = stdin();
     let puzzle = match env::args().nth(1) {
-        Some(path) => SudokuPuzzle::new(BufReader::new(File::open(path).unwrap())).unwrap(),
-        None => SudokuPuzzle::new(stdin.lock()).unwrap(),
+        Some(path) => SudokuPuzzle::from_file(BufReader::new(File::open(path).unwrap())).unwrap(),
+        None => SudokuPuzzle::from_file(stdin.lock()).unwrap(),
     };
 
     let mut columns = puzzle.columns();
