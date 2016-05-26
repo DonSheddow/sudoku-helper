@@ -51,29 +51,20 @@ impl error::Error for SudokuParseError {
     }
 }
 
-impl From<serde_json::error::Error> for SudokuParseError {
-    fn from(error: serde_json::error::Error) -> SudokuParseError {
-        SudokuParseError::Json(error)
-    }
+macro_rules! impl_from_for_error {
+    ( $error_type:ty, $variant:ident ) => {
+        impl From<$error_type> for SudokuParseError {
+            fn from(error: $error_type) -> SudokuParseError {
+                SudokuParseError::$variant(error)
+            }
+        }
+    };
 }
 
-impl From<ParseIntError> for SudokuParseError {
-    fn from(error: ParseIntError) -> SudokuParseError {
-        SudokuParseError::IntParsing(error)
-    }
-}
-
-impl From<io::Error> for SudokuParseError {
-    fn from(error: io::Error) -> SudokuParseError {
-        SudokuParseError::Io(error)
-    }
-}
-
-impl From<&'static str> for SudokuParseError {
-    fn from(error: &'static str) -> SudokuParseError {
-        SudokuParseError::Syntax(error)
-    }
-}
+impl_from_for_error!(serde_json::error::Error, Json);
+impl_from_for_error!(ParseIntError, IntParsing);
+impl_from_for_error!(io::Error, Io);
+impl_from_for_error!(&'static str, Syntax);
 
 pub struct SudokuPuzzle {
     grid: Grid,
