@@ -1,5 +1,7 @@
 use sudoku::{Slot, Grid};
 
+pub type Unit<'a> = Vec<&'a Slot>;
+
 pub struct RowIterator<'a> {
     iter: ::std::slice::Iter<'a, [Slot; 9]>,
 }
@@ -11,10 +13,10 @@ impl<'a> RowIterator<'a> {
 }
 
 impl<'a> Iterator for RowIterator<'a> {
-    type Item = Vec<&'a Slot>;
+    type Item = Unit<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter.next().map(|a| a.iter().collect::<Vec<_>>())
+        self.iter.next().map(|a| a.iter().collect::<Unit>())
     }
 }
 
@@ -31,7 +33,7 @@ impl<'a> ColumnIterator<'a> {
 }
 
 impl<'a> Iterator for ColumnIterator<'a> {
-    type Item = Vec<&'a Slot>;
+    type Item = Unit<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
 
@@ -64,7 +66,7 @@ impl<'a> BlockIterator<'a> {
 }
 
 impl<'a> Iterator for BlockIterator<'a> {
-    type Item = Vec<&'a Slot>;
+    type Item = Unit<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.column >= 9 {
@@ -105,7 +107,7 @@ impl<'a> UnitIterator<'a> {
 }
 
 impl<'a> Iterator for UnitIterator<'a> {
-    type Item = Vec<&'a Slot>;
+    type Item = Unit<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.rows.next().or_else(||

@@ -24,17 +24,8 @@ impl Handler for Server {
             Ok(r) => r,
             Err(e) => { return self.out.send(format!("{}", e)) },
         };
-        let mut result = "".to_owned();
-        let mut columns = puzzle.columns();
-        let first_column = columns.next().unwrap();
-        for &slot in first_column {
-            let s = match slot {
-                Slot::Filled(n) => format!("{}, ", n),
-                Slot::Empty => "_, ".to_owned(),
-            };
-            result.push_str(&s);
-        }
-        self.out.send(result)
+        let is_valid = puzzle.is_valid();
+        self.out.send(format!("Sudoku puzzle is valid: {}", is_valid))
     }
 
     fn on_open(&mut self, shake: Handshake) -> ws::Result<()> {

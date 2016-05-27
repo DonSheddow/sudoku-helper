@@ -19,6 +19,15 @@ pub enum Slot {
     Filled(u8),
 }
 
+impl PartialEq<u8> for Slot {
+    fn eq(&self, other: &u8) -> bool {
+        match *self {
+            Slot::Filled(n) => n == *other,
+            Slot::Empty => false,
+        }
+    }
+}
+
 pub type Grid = [[Slot; 9]; 9];
 
 #[derive(Debug)]
@@ -147,5 +156,23 @@ impl SudokuPuzzle {
 
     pub fn units(&self) -> UnitIterator {
         UnitIterator::new(&self.grid)
+    }
+
+    fn is_valid_unit(unit: &Unit) -> bool {
+        for num in 1..10 {
+            if unit.iter().filter(|&&x| *x == num).count() > 1 {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    pub fn is_valid(&self) -> bool {
+        for unit in self.units() {
+            if !Self::is_valid_unit(&unit) {
+                return false;
+            }
+        }
+        return true;
     }
 }
