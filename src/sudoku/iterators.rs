@@ -87,3 +87,31 @@ impl<'a> Iterator for BlockIterator<'a> {
         Some(v)
     }
 }
+
+pub struct UnitIterator<'a> {
+    rows: RowIterator<'a>,
+    columns: ColumnIterator<'a>,
+    blocks: BlockIterator<'a>,
+}
+
+impl<'a> UnitIterator<'a> {
+    pub fn new(grid: &'a Grid) -> UnitIterator {
+        UnitIterator {
+            rows: RowIterator::new(grid),
+            columns: ColumnIterator::new(grid),
+            blocks: BlockIterator::new(grid),
+        }
+    }
+}
+
+impl<'a> Iterator for UnitIterator<'a> {
+    type Item = Vec<&'a Slot>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.rows.next().or_else(||
+            self.columns.next().or_else(||
+                self.blocks.next()
+            )
+        )
+    }
+}

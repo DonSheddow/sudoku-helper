@@ -145,4 +145,7 @@ impl SudokuPuzzle {
         BlockIterator::new(&self.grid)
     }
 
+    pub fn units(&self) -> UnitIterator {
+        UnitIterator::new(&self.grid)
+    }
 }
