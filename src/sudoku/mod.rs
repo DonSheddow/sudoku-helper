@@ -143,6 +143,22 @@ impl SudokuPuzzle {
         Ok(puzzle)
     }
 
+    pub fn serialize(&self) -> String {
+        let mut result = "".to_owned();
+        for row in self.grid.iter() {
+            for &slot in row {
+                match slot {
+                    Slot::Empty => result.push('_'),
+                    Slot::Filled(n) => result.push_str(&n.to_string()),
+                }
+                result.push(',');
+            }
+            result.pop(); // Remove last comma
+            result.push('\n');
+        }
+        result
+    }
+
     pub fn rows(&self) -> RowIterator {
         RowIterator::new(&self.grid)
     }
@@ -227,8 +243,12 @@ impl SudokuPuzzle {
             }
             row += 1;
         }
-
-        Some(result)
+        if result.is_valid() {
+            Some(result)
+        }
+        else {
+            None
+        }
     }
 
 }

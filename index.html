@@ -59,6 +59,21 @@ function json_serialize_sudoku() {
     return JSON.stringify(rows);
 }
 
+function unserialize_sudoku(s) {
+    var root = document.getElementById("sudoku-grid");
+    var cells = document.getElementsByClassName("sudoku-cell__input");
+    var rows = s.trim().split('\n');
+    for (var i=0; i<rows.length; i++) {
+        var numbers = rows[i].split(',');
+        for (var j=0; j<numbers.length; j++) {
+            var index = 9*i + j;
+            if (numbers[j] != "_") {
+                cells[index].value = numbers[j];
+            }
+        }
+    }
+}
+
 function create_sudoku_block() {
     var root = document.createElement("table");
     root.classList.add("sudoku-block");
@@ -101,7 +116,14 @@ function send_msg() {
 
 var socket = new WebSocket("ws://localhost:3012");
 socket.onmessage = function (event) {
-    document.getElementById("message-box").innerHTML = event.data;
+    if (event.data.length < 20) {
+        document.getElementById("message-box").innerHTML = event.data;
+    }
+    else {
+    //    document.getElementById("message-box").innerHTML = event.data.slice(0, 15) + "[...]";
+        document.getElementById("message-box").innerHTML = event.data.replace(/(?:\r\n|\r|\n)/g, '<br />');
+        unserialize_sudoku(event.data);
+    }
 }
 
 </script>

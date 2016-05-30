@@ -25,7 +25,10 @@ impl Handler for Server {
             Err(e) => { return self.out.send(format!("{}", e)) },
         };
         let solved = puzzle.solved();
-        self.out.send(format!("{:?}", solved))
+        match solved {
+            Some(puzzle) => self.out.send(puzzle.serialize()),
+            None => self.out.send("No solution found"),
+        }
     }
 
     fn on_open(&mut self, shake: Handshake) -> ws::Result<()> {
