@@ -13,7 +13,7 @@ mod iterators;
 
 use self::iterators::*;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum Slot {
     Empty,
     Filled(u8),
@@ -75,6 +75,7 @@ impl_from_for_error!(ParseIntError, IntParsing);
 impl_from_for_error!(io::Error, Io);
 impl_from_for_error!(&'static str, Syntax);
 
+#[derive(Clone, Debug)]
 pub struct SudokuPuzzle {
     grid: Grid,
 }
@@ -175,4 +176,59 @@ impl SudokuPuzzle {
         }
         return true;
     }
+
+    fn insert_lowest_fitting_num(&mut self, row: usize, col: usize, increment: bool) {
+        let start = if increment {
+            match self.grid[row][col] {
+                Slot::Filled(n) => n + 1,
+                Slot::Empty => panic!("Programming error"),
+            }
+        } else { 1 };
+        for candidate in start..10 {
+            self.grid[row][col] = Slot::Filled(candidate);
+            if self.is_valid() {
+                return;
+            }
+        }
+        self.grid[row][col] = Slot::Empty;
+    }
+
+    pub fn solved(&self) -> Option<Self> {
+        let mut result = self.clone();
+        let mut stack = vec![];
+        let (mut row, mut col);
+        row = 0;
+        while row < 9 {
+            col = 0;
+            while col < 9 {
+                match self.grid[row][col] {
+                    Slot::Empty => {
+                        result.insert_lowest_fitting_num(row, col, false);
+                        match result.grid[row][col] {
+                            Slot::Empty => {
+                                loop { // Backtrack, since no number fits
+                                    match stack.last() {
+                                        None => return None,
+                                        Some(&(r, c)) => { row = r; col = c },
+                                    }
+                                    result.insert_lowest_fitting_num(row, col, true);
+                                    match result.grid[row][col] {
+                                        Slot::Empty => stack.pop(),
+                                        _ => break,
+                                    };
+                                }
+                            }
+                            _ => stack.push((row, col)),
+                        }
+                    }
+                    _ => {},
+                }
+                col += 1;
+            }
+            row += 1;
+        }
+
+        Some(result)
+    }
+
 }

@@ -24,8 +24,8 @@ impl Handler for Server {
             Ok(r) => r,
             Err(e) => { return self.out.send(format!("{}", e)) },
         };
-        let is_valid = puzzle.is_valid();
-        self.out.send(format!("Sudoku puzzle is valid: {}", is_valid))
+        let solved = puzzle.solved();
+        self.out.send(format!("{:?}", solved))
     }
 
     fn on_open(&mut self, shake: Handshake) -> ws::Result<()> {

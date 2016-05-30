@@ -38,7 +38,7 @@ function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
-function serialize_sudoku() {
+function json_serialize_sudoku() {
     var root = document.getElementById("sudoku-grid");
     var cells = document.getElementsByClassName("sudoku-cell__input");
     var rows = new Array(9).fill("");
@@ -93,8 +93,9 @@ function create_sudoku_grid() {
 }
 
 function send_msg() {
+    document.getElementById("message-box").innerHTML = "loading...";
 //    var msg = document.getElementById("msg-input").value;
-    var msg = serialize_sudoku();
+    var msg = json_serialize_sudoku();
     socket.send(msg);
 }
 
