@@ -13,7 +13,7 @@ mod iterators;
 
 use self::iterators::*;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Slot {
     Empty,
     Filled(u8),
@@ -193,8 +193,8 @@ impl SudokuPuzzle {
         return true;
     }
 
-    fn insert_lowest_fitting_num(&mut self, row: usize, col: usize, increment: bool) {
-        let start = if increment {
+    fn insert_lowest_fitting_num(&mut self, row: usize, col: usize, backtracking: bool) {
+        let start = if backtracking {
             match self.grid[row][col] {
                 Slot::Filled(n) => n + 1,
                 Slot::Empty => panic!("Programming error"),
@@ -211,44 +211,32 @@ impl SudokuPuzzle {
 
     pub fn solved(&self) -> Option<Self> {
         let mut result = self.clone();
-        let mut stack = vec![];
-        let (mut row, mut col);
-        row = 0;
-        while row < 9 {
-            col = 0;
-            while col < 9 {
-                match self.grid[row][col] {
-                    Slot::Empty => {
-                        result.insert_lowest_fitting_num(row, col, false);
-                        match result.grid[row][col] {
-                            Slot::Empty => {
-                                loop { // Backtrack, since no number fits
-                                    match stack.last() {
-                                        None => return None,
-                                        Some(&(r, c)) => { row = r; col = c },
-                                    }
-                                    result.insert_lowest_fitting_num(row, col, true);
-                                    match result.grid[row][col] {
-                                        Slot::Empty => stack.pop(),
-                                        _ => break,
-                                    };
-                                }
-                            }
-                            _ => stack.push((row, col)),
-                        }
-                    }
-                    _ => {},
+        let mut backtrack = false;
+        let mut index: isize = 0;
+        while 0 <= index && index < 81 {
+            let row = (index / 9) as usize;
+            let col = (index % 9) as usize;
+            if self.grid[row][col] == Slot::Empty {
+                result.insert_lowest_fitting_num(row, col, backtrack);
+                if result.grid[row][col] == Slot::Empty && !backtrack {
+                    backtrack = true;
                 }
-                col += 1;
+                else if result.grid[row][col] != Slot::Empty && backtrack {
+                    backtrack = false;
+                }
             }
-            row += 1;
+            if backtrack {
+                index -= 1;
+            }
+            else {
+                index += 1;
+            }
         }
-        if result.is_valid() {
+        if !backtrack {
             Some(result)
         }
         else {
             None
         }
     }
-
 }
