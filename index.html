@@ -23,11 +23,16 @@
 
 .sudoku-cell {
   border: 1px solid grey;
+  height: 42px;
+  width: 42px;
 }
 
 .sudoku-cell__input {
   border: none;
   text-align: center;
+  box-sizing: border-box;
+  width: 100%;
+  font-size: 26px;
 }
 
 </style>
@@ -89,7 +94,6 @@ function create_sudoku_block() {
             var input = document.createElement("input");
             input.classList.add("sudoku-cell__input");
             input.type = "text";
-            input.size = "1";
             column.appendChild(input);
             row.appendChild(column);
         }
