@@ -30,3 +30,7 @@
   width: 100%;
   font-size: 26px;
 }
+
+.hidden {
+  display: none;
+}

@@ -77,14 +77,30 @@ function send_msg() {
     socket.send(msg);
 }
 
-var socket = new WebSocket("ws://localhost:3012");
-socket.onmessage = function (event) {
+function onmessage(event) {
     if (event.data.length < 20) {
         document.getElementById("message-box").innerHTML = event.data;
     }
     else {
-    //    document.getElementById("message-box").innerHTML = event.data.slice(0, 15) + "[...]";
-        document.getElementById("message-box").innerHTML = event.data.replace(/(?:\r\n|\r|\n)/g, '<br />');
         unserialize_sudoku(event.data);
+        document.getElementById("message-box").innerHTML = "Solved!";
     }
+}
+
+function onopen(event) {
+    document.getElementById("message-box").innerHTML = "Connected successfully!";
+    document.getElementById("connect-button").classList.add("hidden");
+}
+
+function onclose(event) {
+    document.getElementById("connect-button").classList.remove("hidden");
+}
+
+var socket;
+
+function connect() {
+    socket = new WebSocket("ws://localhost:3012");
+    socket.onmessage = onmessage;
+    socket.onopen = onopen;
+    socket.onclose = onclose;
 }

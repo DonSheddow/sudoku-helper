@@ -27,7 +27,7 @@ impl Handler for Server {
 
     fn on_open(&mut self, shake: Handshake) -> ws::Result<()> {
         println!("Got connection from {}", shake.remote_addr().unwrap().unwrap());
-        self.out.send("Hello, world!")
+        Ok(())
     }
 
 }
