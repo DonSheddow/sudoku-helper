@@ -92,6 +92,7 @@ function onopen(event) {
 }
 
 function onclose(event) {
+    document.getElementById("message-box").innerHTML = "Not connected";
     document.getElementById("connect-button").classList.remove("hidden");
 }
 
