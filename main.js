@@ -27,7 +27,6 @@ function unserialize_sudoku(s) {
         var numbers = rows[i].split(',');
         for (var j=0; j<numbers.length; j++) {
             var index = 27*Math.floor(i/3) + 3*(i % 3) + 9*Math.floor(j/3) + j % 3;
-            console.log(index);
             if (numbers[j] == "_") {
                 cells[index].value = "";
             }
