@@ -1,9 +1,25 @@
 extern crate ws;
+extern crate serde_json;
 
+use serde_json::builder::ObjectBuilder;
 use ws::{listen, Sender, Handler, Message, Handshake};
 
 mod sudoku;
 use sudoku::SudokuPuzzle;
+
+fn json_message<T: ToString>(msg: T) -> String {
+    let value = ObjectBuilder::new()
+        .insert("message", msg.to_string())
+        .unwrap();
+    value.to_string()
+}
+
+fn json_puzzle(puzzle: SudokuPuzzle) -> String {
+    let value = ObjectBuilder::new()
+        .insert("solution", puzzle.serialize())
+        .unwrap();
+    value.to_string()
+}
 
 struct Server {
     out: Sender,
@@ -16,12 +32,12 @@ impl Handler for Server {
 
         let puzzle = match SudokuPuzzle::from_json(&s) {
             Ok(r) => r,
-            Err(e) => { return self.out.send(format!("{}", e)) },
+            Err(e) => { return self.out.send(json_message(e)) },
         };
         let solved = puzzle.solved();
         match solved {
-            Some(puzzle) => self.out.send(puzzle.serialize()),
-            None => self.out.send("No solution found"),
+            Some(puzzle) => self.out.send(json_puzzle(puzzle)),
+            None => self.out.send(json_message("No solution found")),
         }
     }
 

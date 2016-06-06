@@ -77,12 +77,13 @@ function send_msg() {
 }
 
 function onmessage(event) {
-    if (event.data.length < 20) {
-        document.getElementById("message-box").innerHTML = event.data;
-    }
-    else {
-        unserialize_sudoku(event.data);
+    var data = JSON.parse(event.data);
+    if (data.hasOwnProperty("solution")) {
+        unserialize_sudoku(data["solution"]);
         document.getElementById("message-box").innerHTML = "Solved!";
+    }
+    if (data.hasOwnProperty("message")) {
+        document.getElementById("message-box").innerHTML = data["message"];
     }
 }
 
