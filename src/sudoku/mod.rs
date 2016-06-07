@@ -19,6 +19,26 @@ pub enum Slot {
     Filled(u8),
 }
 
+impl Slot {
+    fn from_json(val: &Value) -> Result<Self, &'static str> {
+        if val.is_null() {
+            Ok(Slot::Empty)
+        }
+        else if val.is_number() {
+            let num = val.as_u64().unwrap();
+            if 1 <= num && num <= 9 {
+                Ok(Slot::Filled(num as u8))
+            }
+            else {
+                Err("number must be between 1 and 9 inclusive")
+            }
+        }
+        else {
+            Err("cell value must be empty or a number")
+        }
+    }
+}
+
 pub type Grid = [[Slot; 9]; 9];
 
 #[derive(Debug)]
@@ -114,20 +134,12 @@ impl SudokuPuzzle {
             return Err(convert::From::from("array must contain exactly 9 rows"));
         }
         for (row_idx, row_value) in v.iter().enumerate() {
-            let str_row = try!(row_value.as_string().ok_or("rows must be strings"));
-            let mut numbers = str_row.split(',');
-            for col_idx in 0..9 {
-                let str_num = try!(numbers.next().ok_or("not enough numbers in row")).trim();
-                if str_num == "_" {
-                    puzzle.grid[row_idx][col_idx] = Slot::Empty;
-                }
-                else {
-                    let num: u8 = try!(str_num.parse());
-                    if !(1 <= num && num <= 9) {
-                        return Err(convert::From::from("number must be between 1 and 9 inclusive"));
-                    }
-                    puzzle.grid[row_idx][col_idx] = Slot::Filled(num);
-                }
+            let row = try!(row_value.as_array().ok_or("unable to interpret row as array"));
+            if row.len() != 9 {
+                return Err(convert::From::from("row must contain exactly 9 slots"));
+            }
+            for (col_idx, s) in row.iter().enumerate() {
+                puzzle.grid[row_idx][col_idx] = try!(Slot::from_json(s));
             }
         }
 

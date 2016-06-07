@@ -1,19 +1,26 @@
+function is_numeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
 function json_serialize_sudoku() {
     var root = document.getElementById("sudoku-grid");
     var cells = document.getElementsByClassName("sudoku-cell__input");
-    var rows = new Array(9).fill("");
+    var rows = new Array(9);
+    for (var i=0; i<rows.length; i++) {
+        rows[i] = new Array();
+    }
     for (var i=0; i<cells.length; i++) {
         var index = 3*Math.floor(i/27) + (Math.floor(i/3) % 3);
-        if (cells[i].value.trim() != "") {
-            rows[index] += cells[i].value + ',';
+        if (is_numeric(cells[i].value)) {
+            rows[index].push(parseInt(cells[i].value, 10));
+        }
+        else if (cells[i].value == "") {
+            rows[index].push(null);
         }
         else {
-            rows[index] += "_" + ',';
+            alert("One of the cells contains a non-numeric character");
+            return null;
         }
-    }
-
-    for (var i=0; i<rows.length; i++){
-        rows[i] = rows[i].substring(0, rows[i].length-1);
     }
 
     return JSON.stringify(rows);
@@ -70,10 +77,11 @@ function create_sudoku_grid() {
 }
 
 function send_msg() {
-    document.getElementById("message-box").innerHTML = "loading...";
-//    var msg = document.getElementById("msg-input").value;
     var msg = json_serialize_sudoku();
-    socket.send(msg);
+    if (msg != null) {
+        document.getElementById("message-box").innerHTML = "loading...";
+        socket.send(msg);
+    }
 }
 
 function onmessage(event) {
