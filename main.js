@@ -26,19 +26,19 @@ function json_serialize_sudoku() {
     return JSON.stringify(rows);
 }
 
-function unserialize_sudoku(s) {
+function unserialize_sudoku(grid) {
     var root = document.getElementById("sudoku-grid");
     var cells = document.getElementsByClassName("sudoku-cell__input");
-    var rows = s.trim().split('\n');
-    for (var i=0; i<rows.length; i++) {
-        var numbers = rows[i].split(',');
-        for (var j=0; j<numbers.length; j++) {
+
+    for (var i=0; i<grid.length; i++) {
+        var row = grid[i];
+        for (var j=0; j<row.length; j++) {
             var index = 27*Math.floor(i/3) + 3*(i % 3) + 9*Math.floor(j/3) + j % 3;
-            if (numbers[j] == "_") {
+            if (row[j] == "_") {
                 cells[index].value = "";
             }
             else {
-                cells[index].value = numbers[j];
+                cells[index].value = row[j];
             }
         }
     }

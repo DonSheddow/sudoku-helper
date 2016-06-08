@@ -16,7 +16,7 @@ fn json_message<T: ToString>(msg: T) -> String {
 
 fn json_puzzle(puzzle: SudokuPuzzle) -> String {
     let value = ObjectBuilder::new()
-        .insert("solution", puzzle.serialize())
+        .insert("solution", puzzle.to_json())
         .unwrap();
     value.to_string()
 }

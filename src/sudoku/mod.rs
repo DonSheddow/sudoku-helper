@@ -1,6 +1,7 @@
 extern crate serde_json;
 
 use self::serde_json::Value;
+use self::serde_json::builder::ArrayBuilder;
 
 use std::io::prelude::*;
 use std::error;
@@ -35,6 +36,13 @@ impl Slot {
         }
         else {
             Err("cell value must be empty or a number")
+        }
+    }
+
+    fn to_json(&self) -> Value {
+        match *self {
+            Slot::Empty => Value::Null,
+            Slot::Filled(n) => serde_json::to_value(&n),
         }
     }
 }
@@ -146,20 +154,19 @@ impl SudokuPuzzle {
         Ok(puzzle)
     }
 
-    pub fn serialize(&self) -> String {
-        let mut result = "".to_owned();
+    pub fn to_json(&self) -> Value {
+        let mut value = ArrayBuilder::new();
         for row in self.grid.iter() {
-            for &slot in row {
-                match slot {
-                    Slot::Empty => result.push('_'),
-                    Slot::Filled(n) => result.push_str(&n.to_string()),
+            value = value.push_array(|builder| {
+                let mut json_row = builder;
+                for slot in row {
+                    json_row = json_row.push(slot.to_json());
                 }
-                result.push(',');
-            }
-            result.pop(); // Remove last comma
-            result.push('\n');
+                json_row
+            });
         }
-        result
+
+        value.unwrap()
     }
 
     pub fn rows(&self) -> RowIterator {
